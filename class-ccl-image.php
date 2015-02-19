@@ -3,14 +3,14 @@
  * version: 0.0.1
 */
 
-class Featured_Image {
+class CCL_Image {
 	
 	/*
 	 * @desc - Gets parent featured image id
 	 * @param int $post_id
 	 * @return - Thumbnail ID or false if not set
 	*/
-	public function get_image_id( $post_id , $lineage = false ){
+	public function get_post_image_id( $post_id , $lineage = false ){
 		
 		$id = false;
 		
@@ -50,7 +50,7 @@ class Featured_Image {
 		
 		$url = '';
 		
-		$image_attributes = wp_get_attachment_image_src( $id ); 
+		$image_attributes = wp_get_attachment_image_src( $id , $size ); 
 		
 		if ( $image_attributes ) {
 			
@@ -62,11 +62,11 @@ class Featured_Image {
 		
 	} // end method get_thumbnail_src_from_id
 	
-	public function get_parallax_feature( $post_id , $attrs, $lineage = false ){
+	public function get_parallax_feature( $post_id , $attrs = array() , $lineage = false ){
 		
 		$html = '';
 		
-		$img_id = $this->get_image_id( $post_id , $lineage );
+		$img_id = $this->get_post_image_id( $post_id , $lineage );
 		
 		if ( $img_id ){
 			
@@ -93,11 +93,13 @@ class Featured_Image {
 			
 			$html .= '<div class="parallax-banner-wrapper ' . $class . '" style="overflow:hidden; position: relative;' . $style . '">';
 			
-				$html .= '<div class="parallax-banner" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; background-image: url(' . $img_src . '); background-position: center center; background-size: cover;">';
+				$html .= '<div class="parallax-banner" style="position: absolute; width: 100%; height: 125%; bottom: 0; left: 0; background-image: url(' . $img_src . '); background-position: center center; background-size: cover;">';
 				
 				$html .= '</div>';
 			
 			$html .= '</div>';
+			
+			$html .='<script>jQuery(document).ready(function( $ ){ var banner = $( ".parallax-banner-wrapper .parallax-banner"); $( window ).scroll( function(){ var scr = $( window ).scrollTop(); var b_scr = scr * 0.5; banner.css( "bottom", "-" + b_scr + "px" ); });  }); </script>';
 			
 		}; // end if
 		
