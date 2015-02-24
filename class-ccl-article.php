@@ -1,6 +1,6 @@
 <?php
 /*
- * version: 0.2.14
+ * version: 0.2.15
 */
 
 class CCL_Article {
@@ -248,35 +248,39 @@ class CCL_Article {
 	
 	public function get_search_result_html( $article, $args ){
 		
+		if( empty( $article['excerpt'] ) ){
+			
+			$article['excerpt'] = wp_trim_words( strip_shortcodes( $article['content'] ) , 35 );
+			
+		} // end if
+		
 		$ul_style = 'list-style-type: none;';
 		
 		$li_style = '';
 		
 		$has_image = ( empty( $article['img'] ) )? ' has_image' : '';
 		
+		$article['excerpt'] = wp_trim_words( strip_shortcodes( $article['excerpt'] ) , 35 );
+		
 		$html = '<ul class="cwp-item search-result '. $has_image . ' ' . $article['type'] . '" style="' . $ul_style . 'margin: 0; padding: 0.5 0;" >';
 		
 			$html .= '<li>';
 			
-				$html = '<ul class="cwp-item search-result '. $has_image . ' ' . $article['type'] . '" style="' . $ul_style . 'margin: 0; padding: 0;" >';
+			$html .= $article['link_start'] . $article['img'] . $article['link_end']; 
+			
+				$html .= '<ul class="search-result-content '. $has_image . ' ' . $article['type'] . '" style="' . $ul_style . 'margin: 0; padding: 0; width: 85%; display: inline-block; vertical-align: top;" >';
 				
-					if ( ! empty( $article['title'] ) ){
-				
-						$html .= '<li class="cwp-title">';
+					$html .= '<li class="cwp-title">';
 						
-							$html .= '<h4>' . $article['link_start'] . $article['title'] . $article['link_end'] . '</h4>';
+						$html .= '<h4>' . $article['link_start'] . $article['title'] . $article['link_end'] . '</h4>';
 						
-						$html .= '</li>';
+					$html .= '</li>';
 					
-					} // end if
-					
-					if ( ! empty( $article['meta'] ) ){
-					
-						$html .= '<li class="cwp-meta">';
+					$html .= '<li class="cwp-meta">';
 						
-						$html .= '</li>';
-					
-					} // end if
+						$html .= $article['link_start'] . $article['link'] . $article['link_end'];
+						
+					$html .= '</li>';
 					
 					if ( ! empty( $article['excerpt'] ) ){
 					
@@ -288,7 +292,7 @@ class CCL_Article {
 					
 					} // end if
 				
-				$html = '</ul>';
+				$html .= '</ul>';
 			
 			$html .= '<li>';
     
