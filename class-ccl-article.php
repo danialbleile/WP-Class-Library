@@ -1,6 +1,6 @@
 <?php
 /*
- * version: 0.1.14
+ * version: 0.2.14
 */
 
 class CCL_Article {
@@ -245,79 +245,54 @@ class CCL_Article {
 		
 	}
 	
+	
 	public function get_search_result_html( $article, $args ){
 		
-		if( empty( $article['excerpt'] ) ){
-			
-			$article['excerpt'] = wp_trim_words( strip_shortcodes( $article['content'] ) , 35 );
-			
-		} // end if
+		$ul_style = 'list-style-type: none;';
 		
-		$has_image = '';
+		$li_style = '';
 		
-		$style = '';
+		$has_image = ( empty( $article['img'] ) )? ' has_image' : '';
 		
-		if ( ! empty( $article['img'] ) ) { 
-			
-			$has_image = ' has-image';
-			
-		} // end if 
+		$html = '<ul class="cwp-item search-result '. $has_image . ' ' . $article['type'] . '" style="' . $ul_style . 'margin: 0; padding: 0.5 0;" >';
 		
-		
-		$html = '<ul class="cwp-item search-result '. $has_image . ' ' . $article['type'] . '" style="list-style-type: none;" >';
-    
-        if ( $has_image ) {
-        
-			$html .= '<li class="cwp-image" style="display: inline-block; vertical-align: top; width: 10%; margin-right: 2%;">';
+			$html .= '<li>';
 			
-				$html .= $article['link_start'] . $article['img'] . $article['link_end'];
-			
-			$html .= '</li>';
-        
-		} // end if
-        
-        $html .= '<li class="cwp-content" style=" padding:0; list-style-type: none; display: inline-block; vertical-align: top; width: 85%;">';
-        
-            if ( ! empty( $article['title'] ) ) {
-                        
-            	$html .= '<h4>' . $article['link_start'] . $article['title'] . $article['link_end'] . '</h4>';
-                
-			} // end if title
-            
-            
-                        
-			$html .= '<div class="cwp-post-meta">';
-			
-			if ( ! empty( $article['link'] ) ) { 
+				$html = '<ul class="cwp-item search-result '. $has_image . ' ' . $article['type'] . '" style="' . $ul_style . 'margin: 0; padding: 0;" >';
 				
-					$html .= '<span class="cwp-post-link">' . $article['link_start'] . $article['link'] . $article['link_end'] . '</span>';
+					if ( ! empty( $article['title'] ) ){
+				
+						$html .= '<li class="cwp-title">';
+						
+							$html .= '<h4>' . $article['link_start'] . $article['title'] . $article['link_end'] . '</h4>';
+						
+						$html .= '</li>';
 					
-			} // end if
-	
-			if ( ! empty( $article['post_date'] ) ) {
-				
-				   $html .= '<span class="cwp-post-date">' . $article['post_date'] . '</span>';
+					} // end if
 					
-			} // end if post date
+					if ( ! empty( $article['meta'] ) ){
+					
+						$html .= '<li class="cwp-meta">';
+						
+						$html .= '</li>';
+					
+					} // end if
+					
+					if ( ! empty( $article['excerpt'] ) ){
+					
+						$html .= '<li class="cwp-excerpt">';
+						
+							$html .= $article['excerpt'];
+						
+						$html .= '</li>';
+					
+					} // end if
 				
+				$html = '</ul>';
 			
-			$html .= '</div>';
-                
-			
-            
-            if ( ! empty( $article['excerpt'] ) ){
-                        
-                    $html .= '<div class="cwp-post-excerpt">';
-                        
-                        $html .= wp_trim_words( $article['excerpt'] , $num_words = 35 );
-                    
-                    $html .= '</div>';
-                
-			} // end if excerpt
-        
-        $html .= '</li>';
+			$html .= '<li>';
     
-    $html .= '</ul>';
+    	$html .= '</ul>';
 		
 		return $html;
 		
