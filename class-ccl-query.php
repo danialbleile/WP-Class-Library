@@ -1,11 +1,11 @@
 <?php
 /*
- * version: 0.0.1
+ * version: 0.0.3
 */
 
 class CCL_Query {
 	
-	public function get_article_from_rest( $url , $args = array() ){
+	/*public function get_article_from_rest( $url , $args = array() ){
 		
 		$article = false;
 		
@@ -21,13 +21,13 @@ class CCL_Query {
 				 
 				$article = $this->get_rest_article( $wp_rest_item );
 				 
-			 }; // end if
+			 } // end if
 			
-		}; // end if
+		} // end if
 		
 		return $article;
 		
-	}
+	}*/
 	
 	
 	public function get_local_query( $instance ){
@@ -38,7 +38,13 @@ class CCL_Query {
 			
 			$query['post_type'] = $instance['post_type'];
 			
-		};
+		}
+		
+		if ( ! empty( $instance['s'] ) ){
+			
+			$query['s'] = $instance['s'];
+			
+		} // end if
 		
 		if ( isset( $instance['post__in'] ) ) {
 			
@@ -47,7 +53,7 @@ class CCL_Query {
 			
 			$query['order_by'][] = 'post__in';
 			
-		};
+		}
 		
 		if ( isset( $instance['tax_query'] ) && isset( $instance['tax_terms'] ) && $instance['tax_terms'] ){
 			
@@ -59,7 +65,7 @@ class CCL_Query {
 					),
 			);
 				
-		};
+		}
 		
 		if ( isset( $instance['posts_per_page'] ) ) {
 			
@@ -67,7 +73,7 @@ class CCL_Query {
 			
 			$query['posts_per_page'] = $instance['posts_per_page'];
 			
-		}; 
+		} 
 		
 		return $query;
 		
@@ -75,7 +81,7 @@ class CCL_Query {
 	
 	
 	
-	public function get_rest_article( $wp_rest_item ){
+	/*public function get_rest_article( $wp_rest_item ){
 		
 		$article = array();
 		
@@ -101,10 +107,10 @@ class CCL_Query {
 						
 			$article['img'] = apply_filters( 'post_thumbnail_html' , $article['img'] , false, false, 'thumbnail', array() );
 			
-		}; // end if
+		} // end if
 		
 		return $article;
 		
-	}
+	}*/
 	
 }
