@@ -1,11 +1,56 @@
 <?php
 /*
- * version: 0.2.15
+ * version: 0.2.22
 */
 
 class CCL_Article {
 	
-	public function get_rest_article( $wp_rest_item ){
+	public function get_article_display( $article , $args = array() ) {
+		
+		$this->set_article_advanced( $article , $args );
+		
+		$html = '';
+		
+		if ( empty( $args['display'] ) ) $args['display'] = 'promo';
+		
+		switch ( $args['display'] ){
+			case 'search-result':
+				$html .= $this->get_search_result_html( $article , $args );
+				break;
+			case 'gallery':
+				$html .= $this->get_gallery_html( $article , $args );
+				break;
+			case 'article-accordion':
+				$html .= $this->get_article_section_accordion( $article , $args );
+				break;
+			case 'promo':
+			default:
+				$html .= $this->get_promo_html( $article , $args );
+				break;
+		}; // end switch
+		
+		return $html;
+		
+	}
+	
+	public function get_article_link( $link , $args = array() ) {
+		
+		$class = array();
+		
+		if( ! empty( $args['show_lightbox'] ) ){
+			
+			$class[] = 'clb-action';
+			
+		} // end if
+		
+		$html= '<a href="' . $link . '" class="' . implode( ' ', $class ) . '" >';
+		
+		return $html;
+		
+	} 
+	
+	
+	public function get_rest_article( $wp_rest_item , $args = array() ){
 		
 		$article = array();
 		
@@ -19,7 +64,7 @@ class CCL_Article {
 		
 		$article['link'] = ( ! empty( $wp_rest_item['link'] ) )? $wp_rest_item['link'] : '';
 		
-		$article['link_start'] = '<a href="' . $article['link'] . '" >';
+		$article['link_start'] = $this->get_article_link( $article['link'] , $args );
 		
 		$article['link_end'] = ( ! empty( $wp_rest_item['link'] ) )? $wp_rest_item['link'] : '';
 		
@@ -41,7 +86,7 @@ class CCL_Article {
 		
 	}
 	
-	public function get_post_article( $post , $args = array() , $meta = false ){
+	public function get_post_article( $post , $args = array() ){
 		
 		$article = array();
 		
@@ -59,7 +104,7 @@ class CCL_Article {
 		
 		$article['link'] = get_permalink( $post->ID );
 		
-		$article['link_start'] = '<a href="' . $article['link'] . '" >';
+		$article['link_start'] = $this->get_article_link( $article['link'] , $args );
 		
 		$article['link_end'] = '</a>';
 		
@@ -113,32 +158,6 @@ class CCL_Article {
 		 		
 	} // end method cwp_post_obj_advanced
 	
-	public function get_article_display( $article , $args = array() ) {
-		
-		$this->set_article_advanced( $article , $args );
-		
-		$html = '';
-		
-		if ( empty( $args['display'] ) ) $args['display'] = 'promo';
-		
-		switch ( $args['display'] ){
-			case 'search-result':
-				$html .= $this->get_search_result_html( $article , $args );
-				break;
-			case 'gallery':
-				$html .= $this->get_gallery_html( $article , $args );
-				break;
-			case 'article-accordion':
-				$html .= $this->get_article_section_accordion( $article , $args );
-				break;
-			case 'promo':
-			default:
-				break;
-		}; // end switch
-		
-		return $html;
-		
-	}
 	
 	public function get_article_section_accordion( $article, $args ){
 		
@@ -266,8 +285,12 @@ class CCL_Article {
 		
 			$html .= '<li>';
 			
-			$html .= $article['link_start'] . $article['img'] . $article['link_end']; 
+				if ( ! empty( $article['img'] ) ){
 			
+					$html .= '<a href="' . $article['link'] . '" style="display: inline-block; width: 10%; vertical-align: top; margin-right: 2%;" >' . $article['img'] . '</a>'; 
+			
+				} // end if
+				
 				$html .= '<ul class="search-result-content '. $has_image . ' ' . $article['type'] . '" style="' . $ul_style . 'margin: 0; padding: 0; width: 85%; display: inline-block; vertical-align: top;" >';
 				
 					$html .= '<li class="cwp-title">';
@@ -294,7 +317,68 @@ class CCL_Article {
 				
 				$html .= '</ul>';
 			
-			$html .= '<li>';
+			$html .= '</li>';
+    
+    	$html .= '</ul>';
+		
+		return $html;
+		
+	}
+	
+	public function get_promo_html( $article, $args ){
+		
+		if( empty( $article['excerpt'] ) ){
+			
+			$article['excerpt'] = $article['content'];
+			
+		} // end if
+		
+		$ul_style = 'list-style-type: none;';
+		
+		$li_style = '';
+		
+		$has_image = ( empty( $article['img'] ) )? ' has_image' : '';
+		
+		
+		$html = '<ul class="cwp-item promo '. $has_image . ' ' . $article['type'] . '" style="' . $ul_style . 'margin: 0; padding: 0.5 0;" >';
+			
+			if ( ! empty( $article['img'] ) ){
+		
+				$html .= '<li class="cwp-image" style="display: inline-block; width: 20%; vertical-align: top; margin-right: 2%;">';
+				
+					$html .= '<a href="' . $article['link'] . '"  >' . $article['img'] . '</a>'; 
+						
+				$html .= '</li>';
+		
+			} // end if
+			
+			$html .= '<li class="cwp-content promo-content '. $has_image . ' ' . $article['type'] . '" style="margin: 0; padding: 0; width: 75%; display: inline-block; vertical-align: top;">';
+				
+	
+				
+
+						
+						$html .= '<h4 class="cwp-title">' . $article['link_start'] . $article['title'] . $article['link_end'] . '</h4>';
+						
+
+					
+					$html .= '<div class="cwp-meta">';
+						
+						$html .= $article['link_start'] . $article['link'] . $article['link_end'];
+						
+					$html .= '</div>';
+					
+					if ( ! empty( $article['excerpt'] ) ){
+					
+						$html .= '<div class="cwp-excerpt">';
+						
+							$html .= wp_trim_words( strip_shortcodes( $article['excerpt'] ) , 55 );
+						
+						$html .= '</div>';
+					
+					} // end if
+			
+			$html .= '</li>';
     
     	$html .= '</ul>';
 		

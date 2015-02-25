@@ -1,15 +1,31 @@
 <?php
 /*
- * version: 0.0.3
+ * version: 0.0.4
 */
 
 class CCL_Query {
 	
-	/*public function get_article_from_rest( $url , $args = array() ){
+	public function get_article_from_rest( $url , $args = array() ){
 		
 		$article = false;
+	
 		
-		$response = wp_remote_get( $url . '?rest-ext=true' );
+		if ( strpos( $url , '?' ) !== false ){
+			
+			$clean_url = explode( '?' , $url );
+			
+			$url = $clean_url[0] . '?rest-ext=true&' . $clean_url[1];
+			
+		} else if( strpos( $url , '#' ) !== false ){
+			
+			$clean_url = explode( '#' , $url );
+			
+			$url = $clean_url[0] . '?rest-ext=true#' . $clean_url[1];
+			
+		} // end if
+		
+		$response = wp_remote_get( $url );
+		
 			
 		if ( ! is_wp_error( $response  ) ){ 
 				
@@ -21,13 +37,13 @@ class CCL_Query {
 				 
 				$article = $this->get_rest_article( $wp_rest_item );
 				 
-			 } // end if
+			 }; // end if
 			
-		} // end if
+		}; // end if
 		
 		return $article;
 		
-	}*/
+	}
 	
 	
 	public function get_local_query( $instance ){
