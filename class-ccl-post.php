@@ -1,6 +1,6 @@
 <?php
 /*
- * version: 0.0.2
+ * version: 0.1.2
 */
 
 class CCL_Post {
@@ -15,7 +15,12 @@ class CCL_Post {
 		
 	}
 	
-	
-
+	public function get_category_from_archive(){
+		
+		$cat = get_category( get_query_var( 'cat' ) );
+		
+		return $cat;
+		
+	}
 	
 }

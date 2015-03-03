@@ -1,13 +1,52 @@
 <?php
 /*
- * version: 0.0.4
+ * version: 0.2.3
 */
 
 class CCL_Query {
 	
-	public function get_article_from_rest( $url , $args = array() ){
+	public function get_query_from_post(){
 		
-		$article = false;
+		$query = array();
+		
+		$query_keys = array( 
+			'p', 
+			'posts_per_page', 
+			'order', 
+			'orderby',
+			'post_type',
+			'category__and', 
+		);
+		
+		foreach( $query_keys as $qk ){
+			
+			if ( ! empty( $_POST[ $qk ] ) ){
+				
+				if ( is_array( $_POST[ $qk ] ) ) {
+					
+					foreach( $_POST[ $qk ] as $val ){
+						
+						$query[ $qk ][] = sanitize_text_field( $val );
+						
+					} // end foreach
+					
+				} else {
+					
+					$query[ $qk ] = sanitize_text_field( $_POST[ $qk ] );
+					
+				} // end if
+				
+			} // end if
+			
+		} // end foreach
+		
+		return $query;
+	}
+	
+	
+	public function get_post_from_rest( $url , $args = array() ){
+		
+		$wp_rest_item = false;
 	
 		
 		if ( strpos( $url , '?' ) !== false ){
@@ -22,7 +61,11 @@ class CCL_Query {
 			
 			$url = $clean_url[0] . '?rest-ext=true#' . $clean_url[1];
 			
-		} // end if
+		} else {
+			
+			$url = $url . '?rest-ext=true';
+			
+		}// end if
 		
 		$response = wp_remote_get( $url );
 		
@@ -31,17 +74,17 @@ class CCL_Query {
 				
 			 $body = wp_remote_retrieve_body( $response );
 			 
-			 $wp_rest_item = json_decode( $body , true );
+			 $rest_item = json_decode( $body , true );
 			 
-			 if ( $wp_rest_item ){
+			 if ( $rest_item ){
 				 
-				$article = $this->get_rest_article( $wp_rest_item );
+				$wp_rest_item = $rest_item;
 				 
 			 }; // end if
 			
 		}; // end if
 		
-		return $article;
+		return $wp_rest_item;
 		
 	}
 	
@@ -73,11 +116,30 @@ class CCL_Query {
 		
 		if ( isset( $instance['tax_query'] ) && isset( $instance['tax_terms'] ) && $instance['tax_terms'] ){
 			
+			/*
+			 * Tax_query seems to have an issue with two word categories
+			*/
+			$terms = explode( ',' , $instance['tax_terms'] );
+			
+			$term_ids = array();
+			
+			foreach ( $terms as $term ){
+				
+				$term_array = get_term_by( 'name' , $term, $instance['tax_query'] , 'ARRAY_A' );
+				
+				if ( ! empty( $term_array['term_id'] ) ){
+					
+					$term_ids[] = intval ( $term_array['term_id'] );
+					
+				} // end if
+				
+			} // end foreach
+			
 			$query['tax_query'] = array(
 				array(
 					'taxonomy' => $instance['tax_query'],
-					'field'    => 'name',
-					'terms'    => explode( ',' , $instance['tax_terms'] ),
+					'field'    => 'term_id',
+					'terms'    => $term_ids,
 					),
 			);
 				
@@ -94,39 +156,5 @@ class CCL_Query {
 		return $query;
 		
 	} // end method get_local_query 
-	
-	
-	
-	/*public function get_rest_article( $wp_rest_item ){
-		
-		$article = array();
-		
-		$article['type'] = ( ! empty( $wp_rest_item['type'] ) )? $wp_rest_item['type'] : '';
-				
-		$article['title'] = ( ! empty( $wp_rest_item['title'] ) )? $wp_rest_item['title'] : '';
-			
-		$article['content'] = ( ! empty( $wp_rest_item['content'] ) )? $wp_rest_item['content'] : '';
-			
-		$article['excerpt'] = ( ! empty( $wp_rest_item['excerpt'] ) )? $wp_rest_item['excerpt'] : '';
-		
-		$article['link'] = ( ! empty( $wp_rest_item['link'] ) )? $wp_rest_item['link'] : '';
-		
-		$article['author'] = ( ! empty( $wp_rest_item['author']['name'] ) )? $wp_rest_item['author']['name'] : '';
-		
-		$article['date'] = ( ! empty( $wp_rest_item['date'] ) )? $wp_rest_item['date'] : '';
-		
-		if ( ! empty( $wp_rest_item['featured_image']['attachment_meta']['sizes']['thumbnail']['url'] ) ) {
-			
-			$article['img'] = '<img src=" '
-			 			. $wp_rest_item['featured_image']['attachment_meta']['sizes']['thumbnail']['url']
-						. '" />';
-						
-			$article['img'] = apply_filters( 'post_thumbnail_html' , $article['img'] , false, false, 'thumbnail', array() );
-			
-		} // end if
-		
-		return $article;
-		
-	}*/
 	
 }
